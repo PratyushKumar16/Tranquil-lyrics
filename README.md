@@ -1,7 +1,5 @@
 # Tranquil Lyrics
 
-### Check out our *[Sitee](https://yoursit.ee/lyrics)*
-#### Make your own at -> [https://yoursit.ee](https://yoursit.ee)
 
 # How to install Tranquil Lyrics
 
