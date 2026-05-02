@@ -489,6 +489,10 @@ export function Animate(position: number): void {
 
   if (!CurrentLyricsType || CurrentLyricsType === "None") return;
 
+  // Only animate lines within this many indices of the active line.
+  // Lines outside this window get cheap class toggles only — no spring physics.
+  const NEARBY_LINE_WINDOW = 5;
+
   // Define proper types for the arrays and indices
   const applyBlur = (
     arr: Array<{ HTMLElement: HTMLElement; StartTime: number; EndTime: number }>,
@@ -519,65 +523,6 @@ export function Animate(position: number): void {
     }
   };
 
-  /* const applyDistance = (arr: Array<{HTMLElement: HTMLElement; StartTime: number; EndTime: number}>,
-                     activeIndex: number): void => {
-      if (!arr[activeIndex]) return;
-
-      arr[activeIndex].HTMLElement.style.setProperty("--active-line-distance", "0");
-
-      for (let i = activeIndex + 1; i < arr.length; i++) {
-          if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
-            arr[i].HTMLElement.style.setProperty("--active-line-distance", "0");
-          } else {
-            const maxDist = arr.length - 1 - activeIndex;
-            const dist = i - activeIndex;
-            const newDist = maxDist - dist + 1;
-            arr[i].HTMLElement.style.setProperty("--active-line-distance", `${newDist}`);
-          }
-      }
-
-      for (let i = activeIndex - 1; i >= 0; i--) {
-          if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
-            arr[i].HTMLElement.style.setProperty("--active-line-distance", "0");
-          } else {
-            const maxDist = activeIndex;
-            const dist = activeIndex - i;
-            const newDist = maxDist - dist + 1;
-            arr[i].HTMLElement.style.setProperty("--active-line-distance", `${newDist}`);
-          }
-      }
-  }; */
-
-  /* const applyScale = (arr: Array<{HTMLElement: HTMLElement; StartTime: number; EndTime: number}>,
-                     activeIndex: number): void => {
-      if (!arr[activeIndex]) return;
-
-      arr[activeIndex].HTMLElement.style.setProperty("--scale-amount", "0");
-
-      const baseScale = 0.95;
-      const falloff = 0.018;
-
-      for (let i = activeIndex + 1; i < arr.length; i++) {
-          const distance = i - activeIndex;
-          const amount = Math.max(0, baseScale - (falloff * distance));
-          if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
-              arr[i].HTMLElement.style.setProperty("--scale-amount", "0");
-          } else {
-              arr[i].HTMLElement.style.setProperty("--scale-amount", `${amount}`);
-          }
-      }
-
-      for (let i = activeIndex - 1; i >= 0; i--) {
-          const distance = activeIndex - i;
-          const amount = Math.max(0, baseScale - (falloff * distance));
-          if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
-            arr[i].HTMLElement.style.setProperty("--scale-amount", `0`);
-          } else {
-            arr[i].HTMLElement.style.setProperty("--scale-amount", `${amount}`);
-          }
-      }
-  }; */
-
   // These utility functions are not used but kept for future reference
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _calculateOpacity = (percentage: number): number => {
@@ -602,9 +547,30 @@ export function Animate(position: number): void {
   if (CurrentLyricsType === "Syllable") {
     const arr = LyricsObject.Types.Syllable.Lines;
 
+    // Find the active line index first so we can skip distant lines
+    let activeLineIndex = -1;
+    for (let i = 0; i < arr.length; i++) {
+      if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
+        activeLineIndex = i;
+        break;
+      }
+    }
+
     for (let index = 0; index < arr.length; index++) {
       const line = arr[index];
       const lineState = getElementState(ProcessedPosition, line.StartTime, line.EndTime);
+
+      // For lines far from the active one, only toggle classes — skip all spring work
+      if (activeLineIndex !== -1 && Math.abs(index - activeLineIndex) > NEARBY_LINE_WINDOW && lineState !== "Active") {
+        if (lineState === "NotSung") {
+          line.HTMLElement.classList.add("NotSung");
+          line.HTMLElement.classList.remove("Active", "Sung");
+        } else if (lineState === "Sung") {
+          line.HTMLElement.classList.add("Sung");
+          line.HTMLElement.classList.remove("Active", "NotSung");
+        }
+        continue;
+      }
 
       if (lineState === "Active") {
         if (Blurring_LastLine !== index) {
@@ -1568,9 +1534,30 @@ export function Animate(position: number): void {
   } else if (CurrentLyricsType === "Line") {
     const arr = LyricsObject.Types.Line.Lines;
 
+    // Find active line for proximity culling
+    let activeLineIndexLine = -1;
+    for (let i = 0; i < arr.length; i++) {
+      if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
+        activeLineIndexLine = i;
+        break;
+      }
+    }
+
     for (let index = 0; index < arr.length; index++) {
       const line = arr[index];
       const lineState = getElementState(ProcessedPosition, line.StartTime, line.EndTime);
+
+      // Skip expensive animation for distant lines
+      if (activeLineIndexLine !== -1 && Math.abs(index - activeLineIndexLine) > NEARBY_LINE_WINDOW && lineState !== "Active") {
+        if (lineState === "NotSung") {
+          if (!line.HTMLElement.classList.contains("NotSung")) line.HTMLElement.classList.add("NotSung");
+          line.HTMLElement.classList.remove("Sung", "Active");
+        } else if (lineState === "Sung") {
+          if (!line.HTMLElement.classList.contains("Sung")) line.HTMLElement.classList.add("Sung");
+          line.HTMLElement.classList.remove("Active", "NotSung");
+        }
+        continue;
+      }
 
       if (lineState === "Active") {
         if (Blurring_LastLine !== index) {
