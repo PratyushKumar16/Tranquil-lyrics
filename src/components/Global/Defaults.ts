@@ -3,14 +3,14 @@ export const isDev = false;
 const Defaults = {
   lyrics: {
     api: {
-      url: isDev ? "http://localhost:3000" : "https://api.spikerko.org",
+      url: isDev ? "http://localhost:3000" : "https://api.spicylyrics.org",
     },
   },
   CurrentLyricsType: "None",
   LyricsContainerExists: false,
-  SkipTranquilFont: false,
+  SkipSpicyFont: false,
   OldStyleFont: false,
-  TranquilLyricsVersion: "0.0.0",
+  SpicyLyricsVersion: "0.0.0",
   show_topbar_notifications: true,
   PrefersReducedMotion: false,
   StaticBackground_Preset: false,
@@ -24,7 +24,7 @@ const Defaults = {
   MinimalLyricsMode: false,
   hide_npv_bg: false,
   CompactMode_LockedMediaBox: false,
-  LyricsRenderer: "Tranquil",
+  LyricsRenderer: "Spicy",
   LyricsRenderer_Default: 0,
   CanvasBackground: false,
   PopupLyricsAllowed: true,

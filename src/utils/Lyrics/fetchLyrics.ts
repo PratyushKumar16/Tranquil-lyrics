@@ -171,12 +171,12 @@ export default async function fetchLyrics(uri: string): Promise<[object | string
           operation: "lyrics",
           variables: {
             id: trackId,
-            auth: "TranquilLyrics-WebAuth",
+            auth: "SpicyLyrics-WebAuth",
           },
         },
       ],
       {
-        "TranquilLyrics-WebAuth": `Bearer ${Token}`,
+        "SpicyLyrics-WebAuth": `Bearer ${Token}`,
       }
     );
 

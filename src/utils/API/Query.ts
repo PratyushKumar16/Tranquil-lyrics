@@ -54,7 +54,7 @@ export async function Query(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "TranquilLyrics-Version": clientVersion?.Text ?? "",
+        "SpicyLyrics-Version": clientVersion?.Text ?? "",
         ...headers,
       },
       body: JSON.stringify({
