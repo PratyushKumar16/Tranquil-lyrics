@@ -3,7 +3,7 @@ export const isDev = false;
 const Defaults = {
   lyrics: {
     api: {
-      url: isDev ? "http://localhost:3000" : "https://api.tranquillyrics.org",
+      url: isDev ? "http://localhost:3000" : "https://api.spikerko.org",
     },
   },
   CurrentLyricsType: "None",
