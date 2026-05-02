@@ -1,6 +1,6 @@
 {
   "name": "tranquil-lyrics",
-  "author": "Spikerko",
+  "author": "PratyushKumar16",
   "scripts": {
     "sc": "spicetify-creator",
     "dev": "spicetify-creator dev",
