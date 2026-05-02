@@ -8,7 +8,9 @@
   top: 0;
   width: 100%;
   transform-origin: center center;
-  filter: saturate(2.5) brightness(0.65);
+  /* Saturation is handled by Kawarp's shader (saturation: 1.5).
+     Only brightness here avoids a redundant GPU compositing layer. */
+  filter: brightness(0.65);
 }
 
 body:has(.starrynight-bg-container) #main .tranquil-dynamic-bg:not(.StaticBackground),

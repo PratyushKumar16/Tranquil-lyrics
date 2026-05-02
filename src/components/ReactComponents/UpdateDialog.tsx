@@ -16,18 +16,12 @@ const UpdateDialog: React.FC<UpdateDialogProps> = ({ fromVersion, tranquilLyrics
         className="card btn btn-release"
         onClick={() =>
           window.open(
-            `https://github.com/Spikerko/tranquil-lyrics/releases/tag/${tranquilLyricsVersion}`,
+            `https://github.com/PratyushKumar16/Tranquil-lyrics/releases/tag/${tranquilLyricsVersion}`,
             "_blank"
           )
         }
       >
         Release Notes →
-      </button>
-      <button
-        className="card btn btn-discord"
-        onClick={() => window.open("https://discord.com/invite/uqgXU5wh8j", "_blank")}
-      >
-        <p>Join our Discord Server! →</p>
       </button>
     </div>
   );

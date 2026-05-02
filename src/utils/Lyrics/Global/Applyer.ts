@@ -141,14 +141,14 @@ export default async function ApplyLyrics(lyricsContent: [object | string, numbe
 
     currentNoticeElement.innerHTML = `
       <p class="notice-descriptor">${noticeContent.trim()}</p>
-      <p class="notice-footer">Need more help? Join our <a>Discord</a>.</p>
+      <p class="notice-footer">Need help? <a>Report an issue on GitHub</a>.</p>
     `;
 
-    // Add click handler to log when the Discord link is clicked
-    const discordLink = currentNoticeElement.querySelector("a");
-    if (discordLink) {
-      discordLink.addEventListener("click", () => {
-        window.open("https://discord.com/invite/uqgXU5wh8j", "_blank");
+    // Add click handler for the GitHub link
+    const helpLink = currentNoticeElement.querySelector("a");
+    if (helpLink) {
+      helpLink.addEventListener("click", () => {
+        window.open("https://github.com/PratyushKumar16/Tranquil-lyrics/issues", "_blank");
       }, { signal: currentAbortController.signal });
     }
 

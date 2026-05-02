@@ -11,7 +11,7 @@ import { getDynamicAudioAnalysis } from "../../utils/audioAnalysis.ts";
 
 export const KawarpOptionsStatic: KawarpOptions = {
   warpIntensity: 1,
-  blurPasses: 8,
+  blurPasses: 4, // Reduced from 8: nearly identical visual, ~50% less GPU work
   animationSpeed: 0.1,
   saturation: 1.5,
   dithering: 0.008,
@@ -282,7 +282,15 @@ Global.Event.listen("playback:playpause", (e: { data?: { isPaused?: boolean } })
   applyPlayPauseAnimationSpeed(!!e?.data?.isPaused);
 });
 
+// Throttle audio-analysis speed updates to at most every 500ms.
+let _lastProgressUpdateTime = 0;
+const PROGRESS_THROTTLE_MS = 500;
+
 Global.Event.listen("playback:progress", async (e) => {
+  const now = performance.now();
+  if (now - _lastProgressUpdateTime < PROGRESS_THROTTLE_MS) return;
+  _lastProgressUpdateTime = now;
+
   const songId = SpotifyPlayer.GetId();
   if (!songId) {
     resetDynamicBackgroundAnimationSpeed();
