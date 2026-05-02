@@ -1,0 +1,50 @@
+import React from "react";
+import { isDev } from "../../components/Global/Defaults.ts";
+import Session from "../../components/Global/Session.ts";
+import ReactDOM from "react-dom/client";
+import { PopupModal } from "../../components/Modal.ts";
+
+let ShownUpdateNotice = false;
+
+export async function CheckForUpdates(force: boolean = false) {
+  if (isDev) return;
+  const IsOutdated = await Session.TranquilLyrics.IsOutdated();
+  if (IsOutdated) {
+    if (!force && ShownUpdateNotice) return;
+    const currentVersion = Session.TranquilLyrics.GetCurrentVersion();
+    const latestVersion = await Session.TranquilLyrics.GetLatestVersion();
+
+    const div = document.createElement("div");
+    const reactRoot = ReactDOM.createRoot(div);
+    reactRoot.render(
+      <div className="update-card-wrapper slm">
+        <div className="card">
+          <div>Your Tranquil Lyrics version is outdated.</div>
+          <div>To update, click on the "Update" button.</div>
+        </div>
+        <div className="card">
+          Version: From: {currentVersion?.Text || "Unknown"} → To:{" "}
+          {latestVersion?.Text || "Unknown"}
+        </div>
+        <button
+          onClick={() =>
+            Session.Navigate({ pathname: "/TranquilLyrics/Update" })
+          }
+          className="btn-release"
+          data-encore-id="buttonSecondary"
+        >
+          Update
+        </button>
+      </div>
+    );
+
+    PopupModal.display({
+      title: "New Update - Tranquil Lyrics",
+      content: div,
+      onClose: () => {
+        reactRoot.unmount();
+      }
+    });
+    ShownUpdateNotice = true;
+  }
+}
