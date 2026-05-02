@@ -179,15 +179,46 @@ const logLyric = (lyric: string) => {
   lastLyric = lyric;
 }
  */
-let _lyricsIntervalRunning = false;
-
 const LyricsInterval = () => {
-  // Skip all animation work when playback is paused — saves the entire
-  // per-frame cost (spring physics, spline interpolation, DOM writes).
-  if (!SpotifyPlayer.IsPlaying) {
-    _lyricsIntervalRunning = false;
-    return;
-  }
+  /* { // Logging Line part
+    const currentLyrics = storage.get("currentLyricsData") as string;
+    if (currentLyrics != null && currentLyrics != "" && !currentLyrics?.includes("NO_LYRICS")) {
+      const parsedLyricsData = JSON.parse(currentLyrics);
+      const staticLyricsData = convertToStaticLyrics(parsedLyricsData);
+
+      if (parsedLyricsData.Type !== "Static") {
+        // Find the currently active line based on progress (ms) and Content's StartTime/EndTime (s)
+        const currentTimeSec = progress / 1000;
+        let activeLineIndex = -1;
+        if (parsedLyricsData.Type === "Syllable") {
+          // For Syllable type, StartTime and EndTime are in line.Lead
+          activeLineIndex = parsedLyricsData.Content.findIndex(
+            (line: { Lead?: { StartTime: number; EndTime: number } }) =>
+              line.Lead &&
+              currentTimeSec >= line.Lead.StartTime &&
+              currentTimeSec <= line.Lead.EndTime
+          );
+        } else if (parsedLyricsData.Type === "Line") {
+          // For Line type, StartTime and EndTime are directly on the line
+          activeLineIndex = parsedLyricsData.Content.findIndex(
+            (line: { StartTime: number; EndTime: number }) =>
+              currentTimeSec >= line.StartTime && currentTimeSec <= line.EndTime
+          );
+        }
+        /* console.log("active line index", activeLineIndex);
+        console.log("currentTimeSec", currentTimeSec);
+        console.log("static lyrics data", staticLyricsData);
+        console.log("source lyrics data", parsedLyricsData); *
+        if (
+          activeLineIndex !== -1 &&
+          activeLineIndex < staticLyricsData.Lines.length
+        ) {
+          const activeLine = staticLyricsData.Lines[activeLineIndex];
+          console.log(activeLine.Text);
+        }
+      }
+    }
+  } */
 
   if (Defaults.LyricsContainerExists) {
     const progress = SpotifyPlayer.GetPosition();
@@ -197,17 +228,7 @@ const LyricsInterval = () => {
   OnPreRender(LyricsInterval);
 };
 
-// Kick-start the loop initially
 LyricsInterval();
-_lyricsIntervalRunning = true;
-
-// Re-start the loop when playback resumes after a pause
-Global.Event.listen("playback:playpause", (e: { data?: { isPaused?: boolean } }) => {
-  if (!e?.data?.isPaused && !_lyricsIntervalRunning) {
-    _lyricsIntervalRunning = true;
-    OnPreRender(LyricsInterval);
-  }
-});
 
 // Define proper types for event listener variables
 let LinesEvListenerMaid: Maid | null = null;
